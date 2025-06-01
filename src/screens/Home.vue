@@ -6,7 +6,7 @@
 
 <script>
 import chatInput from '../components/chatInput.vue'
-import { isLoggedIn, getCurrentUser } from '../firebase/config';
+import {  auth } from '../firebase/config';
 export default {
   name: 'Home',
   
@@ -19,7 +19,11 @@ export default {
   methods: {
     async askLLM(event) {
       try {
-        const idToken = localStorage.getItem('firebaseIdToken');
+         const user = auth.currentUser;
+          if (!user) {
+            return
+          }
+          const idToken = await user.getIdToken(true);
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/send`, {
           method: "POST",
           headers: {

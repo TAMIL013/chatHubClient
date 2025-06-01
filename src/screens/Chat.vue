@@ -26,7 +26,7 @@ import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-json';
-
+import { auth } from "../firebase/config";
 marked.setOptions({
   highlight: function (code, lang) {
     if (Prism.languages[lang]) {
@@ -83,7 +83,11 @@ export default {
     async fetchChatHistory() {
       try {
         const id =this.$route.params.id
-        const idToken = localStorage.getItem('firebaseIdToken');
+        const user = auth.currentUser;
+        if (!user) {
+          return
+        }
+        const idToken = await user.getIdToken(true);
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/${id}`,{
           method: 'GET',
           headers: {
@@ -127,7 +131,11 @@ export default {
       this.messages.push(botMessage);
 
       try {
-        const idToken = localStorage.getItem('firebaseIdToken');
+        const user = auth.currentUser;
+        if (!user) {
+          return
+        }
+        const idToken = await user.getIdToken(true);
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/send/${id}`, {
           method: "POST",
           headers: {
